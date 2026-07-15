@@ -1,7 +1,13 @@
 /* CalculatorsNexus Global Styles */
-
+@font-face {
+    font-family: 'Kameron';
+    src: url('/fonts/Kameron-VariableFont_wght.ttf') format('truetype');
+    font-weight: 400 700; /* Supports weights from Regular (400) to Bold (700) */
+    font-style: normal;
+    font-display: swap;
+}
 body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-family: 'Kameron', Georgia, sans-serif;
     background-color: #f8f9fa;
 }
 

@@ -31,7 +31,7 @@ export default function Layout({ children, seo = {} }) {
     function handleSearch(e) {
         e.preventDefault()
         if (searchQuery.trim()) {
-            window.location.href = `/search?q=${encodeURIComponent(searchQuery)}`
+            router.push(`/search?q=${encodeURIComponent(searchQuery)}`)
         }
     }
 

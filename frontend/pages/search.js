@@ -2,27 +2,52 @@
  * pages/search.js — Search Page
  * Searches calculators via Django API.
  */
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { useRouter } from 'next/router'
 import Layout from '../components/Layout'
 import CalculatorCard from '../components/CalculatorCard'
 import { searchCalculators } from '../lib/api'
 
 export default function SearchPage({ initialResults, initialQuery }) {
+    const router = useRouter()
     const [query,   setQuery]   = useState(initialQuery || '')
     const [results, setResults] = useState(initialResults || [])
     const [loading, setLoading] = useState(false)
 
-    async function handleSearch(e) {
-        e.preventDefault()
-        if (!query.trim()) return
+    // Listen to URL parameter changes (e.g., from the top navbar search)
+    useEffect(() => {
+        const urlQuery = router.query.q || ''
+        
+        // Sync inputs and query data if the URL differs from state
+        if (urlQuery !== query) {
+            setQuery(urlQuery)
+            fetchResults(urlQuery)
+        }
+    }, [router.query.q])
+
+    // Isolated data fetching utility
+    async function fetchResults(searchTerm) {
+        if (!searchTerm.trim()) {
+            setResults([])
+            return
+        }
         setLoading(true)
         try {
-            const data = await searchCalculators(query)
+            const data = await searchCalculators(searchTerm)
             setResults(data.results || [])
         } catch {
             setResults([])
         }
         setLoading(false)
+    }
+
+    async function handleSearch(e) {
+        e.preventDefault()
+        if (!query.trim()) return
+        
+        // Update URL path synchronously so the navbar search matches
+        router.push(`/search?q=${encodeURIComponent(query)}`, undefined, { shallow: true })
+        await fetchResults(query)
     }
 
     return (
