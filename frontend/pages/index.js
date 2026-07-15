@@ -17,7 +17,7 @@ export default function HomePage({ data }) {
             {/* Hero */}
             <section className="bg-primary text-white py-5">
                 <div className="container text-center">
-                    <h1 className="display-5 fw-bold">🧮 Free Online Calculators</h1>
+                    <h1 className="display-5 fw-bold">Free Online Calculators</h1>
                     <p className="lead mt-3">
                         Finance, Health, Math, Business and 500+ more calculators — free forever
                     </p>

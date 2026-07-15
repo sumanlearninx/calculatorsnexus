@@ -84,83 +84,54 @@ export default function Layout({ children, seo = {} }) {
                 />
             </Head>
 
-            {/* Navbar */}
-            <nav className="navbar navbar-expand-lg navbar-dark bg-primary sticky-top shadow-sm">
-                <div className="container">
-                    <Link href="/" className="navbar-brand fw-bold fs-4">
-                        🧮 CalculatorsNexus
-                    </Link>
-                    <button
-                        className="navbar-toggler"
-                        onClick={() => setMenuOpen(!menuOpen)}
-                    >
-                        <span className="navbar-toggler-icon"></span>
-                    </button>
-                    <div className={`collapse navbar-collapse ${menuOpen ? 'show' : ''}`}>
-                        <ul className="navbar-nav me-auto">
-                            <li className="nav-item">
-                                <Link href="/" className="nav-link">Home</Link>
-                            </li>
-                            <li className="nav-item">
-                                <Link href="/search" className="nav-link">All Calculators</Link>
-                            </li>
-                        </ul>
-                        <form className="d-flex" onSubmit={handleSearch}>
-                            <input
-                                className="form-control me-2"
-                                type="search"
-                                placeholder="Search calculators..."
-                                value={searchQuery}
-                                onChange={e => setSearchQuery(e.target.value)}
-                            />
-                            <button className="btn btn-light" type="submit">
-                                <i className="bi bi-search"></i>
-                            </button>
-                        </form>
-                    </div>
-                </div>
-            </nav>
-
-            <main>{children}</main>
-
-            <footer className="bg-dark text-light py-5 mt-5">
-                <div className="container">
-                    <div className="row">
-                        <div className="col-md-4 mb-4">
-                            <h5 className="fw-bold">🧮 CalculatorsNexus</h5>
-                            <p className="text-muted">
-                                Free online calculators for finance, health, math, business and more.
-                            </p>
-                        </div>
-                        <div className="col-md-4 mb-4">
-                            <h6 className="fw-bold">Quick Links</h6>
-                            <ul className="list-unstyled">
-                                <li><Link href="/" className="text-muted text-decoration-none">Home</Link></li>
-                                <li><Link href="/search" className="text-muted text-decoration-none">All Calculators</Link></li>
-                                
-                                <li><Link href="/privacy" className="text-muted text-decoration-none">Privacy Policy</Link></li>
-                                <li><Link href="/terms"   className="text-muted text-decoration-none">Terms of Service</Link></li>
-                            </ul>
-                        </div>
-                        <div className="col-md-4 mb-4">
-                            <h6 className="fw-bold">Popular</h6>
-                            <ul className="list-unstyled">
-                                <li>
-                                    <Link href="/finance/emi-calculator"
-                                          className="text-muted text-decoration-none">
-                                        EMI Calculator
-                                    </Link>
+            <div className="d-flex flex-column min-vh-100">
+                {/* Navbar */}
+                <nav className="navbar navbar-expand-lg navbar-dark bg-dark text-light sticky-top shadow-sm">
+                    <div className="container">
+                        <Link href="/" className="navbar-brand fw-bold fs-4">
+                            CalculatorsNexus
+                        </Link>
+                        <button
+                            className="navbar-toggler"
+                            onClick={() => setMenuOpen(!menuOpen)}
+                        >
+                            <span className="navbar-toggler-icon"></span>
+                        </button>
+                        <div className={`collapse navbar-collapse ${menuOpen ? 'show' : ''}`}>
+                            <ul className="navbar-nav me-auto">
+                                <li className="nav-item">
+                                    <Link href="/" className="nav-link">Home</Link>
+                                </li>
+                                <li className="nav-item">
+                                    <Link href="/search" className="nav-link">All Calculators</Link>
                                 </li>
                             </ul>
+                            <form className="d-flex" onSubmit={handleSearch}>
+                                <input
+                                    className="form-control me-2"
+                                    type="search"
+                                    placeholder="Search calculators..."
+                                    value={searchQuery}
+                                    onChange={e => setSearchQuery(e.target.value)}
+                                />
+                                <button className="btn btn-light" type="submit">
+                                    <i className="bi bi-search"></i>
+                                </button>
+                            </form>
                         </div>
                     </div>
-                    <hr className="border-secondary" />
-                    <p className="text-center text-muted mb-0">
+                </nav>
+
+                <main className="flex-grow-1">{children}</main>
+
+                <footer className="bg-dark text-light py-5 mt-5">
+                    
+                    <p className="text-center text-light mb-0">
                         © {new Date().getFullYear()} CalculatorsNexus. All rights reserved.
                     </p>
-                </div>
-            </footer>
-
+                
+                </footer>
+            </div>
             <Script
                 src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
                 strategy="lazyOnload"
