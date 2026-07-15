@@ -2,7 +2,7 @@ from rest_framework.decorators import api_view, throttle_classes
 from rest_framework.throttling import AnonRateThrottle
 from rest_framework.response import Response
 from rest_framework import status
-from django.db.models import Q
+from django.db.models import Q, F
 from .models import Category, Calculator
 from .serializers import (
     CategoryListSerializer, CategoryDetailSerializer,
@@ -65,7 +65,7 @@ def calculator_detail(request, slug):
     except Calculator.DoesNotExist:
         return Response({'error': 'Calculator not found'}, status=status.HTTP_404_NOT_FOUND)
 
-    Calculator.objects.filter(pk=calculator.pk).update(view_count=calculator.view_count + 1)
+    Calculator.objects.filter(pk=calculator.pk).update(view_count=F('view_count') + 1)
 
     return Response(CalculatorDetailSerializer(calculator, context={'request': request}).data)
 

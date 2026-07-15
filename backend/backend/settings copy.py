@@ -25,7 +25,6 @@ INSTALLED_APPS = [
     'corsheaders',
     # Our app
     'calculators',
-    
 ]
 
 MIDDLEWARE = [

@@ -12,7 +12,7 @@ class CalculatorSitemap(Sitemap):
         return Calculator.objects.filter(is_active=True).order_by('category', 'name')
 
     def location(self, obj: Any) -> str:      # ← Any fixes the mismatch
-        return f'/calculator/{obj.slug}/'
+        return f'/{obj.category.slug}/{obj.slug}/'
 
     def lastmod(self, obj: Any):
         return obj.updated_at
@@ -26,7 +26,7 @@ class CategorySitemap(Sitemap):
         return Category.objects.filter(is_active=True).order_by('order')
 
     def location(self, obj: Any) -> str:      # ← Any fixes the mismatch
-        return f'/category/{obj.slug}/'
+        return f'/{obj.slug}/'
 
     def lastmod(self, obj: Any):
         return obj.updated_at

@@ -1,5 +1,6 @@
 import Head from 'next/head'
 import Link from 'next/link'
+import Script from 'next/script'
 import { useState } from 'react'
 import { useRouter } from 'next/router'
 
@@ -145,7 +146,7 @@ export default function Layout({ children, seo = {} }) {
                             <h6 className="fw-bold">Popular</h6>
                             <ul className="list-unstyled">
                                 <li>
-                                    <Link href="/calculator/emi-calculator"
+                                    <Link href="/finance/emi-calculator"
                                           className="text-muted text-decoration-none">
                                         EMI Calculator
                                     </Link>
@@ -160,7 +161,7 @@ export default function Layout({ children, seo = {} }) {
                 </div>
             </footer>
 
-            <script
+            <Script
                 src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
                 strategy="lazyOnload"
             />
