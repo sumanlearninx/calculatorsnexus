@@ -1,69 +1,40 @@
-I am building a calculator website called CalculatorsNexus.
-The tech stack is Django REST Framework (backend) + Next.js (frontend).
+I am building calculator widgets for a website called CalculatorsNexus.
 
-━━━ PROJECT ARCHITECTURE ━━━
+When I say "build [Calculator Name] calculator", generate exactly TWO
+things — no backend code, no pages, no navbar, no footer, nothing else:
 
-Backend: Django REST Framework
-- Runs on http://127.0.0.1:8000
-- All API endpoints are under /api/
-- Models: SEO, Category, Calculator, FAQ
-- Calculator has: name, slug, icon, icon_image, short_description,
-  description, how_to_use, formula, example, is_featured, is_new
-- FAQ is a separate model linked to Calculator (question, answer, order)
+1. The React widget file (see WIDGET DESIGN PATTERN below)
+2. The content block (see CONTENT TO GENERATE below)
 
-Frontend: Next.js (Pages Router, NOT App Router)
-- Runs on http://localhost:3000
-- Talks to Django via lib/api.js
-- Bootstrap 5 is used for styling (loaded via CDN in Layout.js)
-- No Tailwind, no TypeScript
+Output path:   frontend/components/calculators/[WidgetName].js
+Stack:         Plain JavaScript (.js, NOT TypeScript), React
+Styling:       Bootstrap 5 classes only (no Tailwind)
+Always import shared helpers exactly like this:
+import { formatAmount, formatPercent, isValidInput, isFiniteResult } from '../../lib/utils'
 
-━━━ FOLDER STRUCTURE ━━━
+━━━ NAMING RULES ━━━
 
-frontend/
-├── lib/
-│   ├── api.js                          ← all fetch calls to Django
-│   └── utils.js                        ← shared utility functions (formatAmount, isValidInput etc.)
-├── components/
-│   ├── Layout.js                       ← navbar + footer + SEO head
-│   ├── CalcIcon.js                     ← displays emoji OR uploaded image icon
-│   ├── CalculatorCard.js               ← reusable card for calculator listings
-│   ├── CategoryCard.js                 ← reusable category card
-│   └── calculators/
-│       └── [WidgetName].js             ← one file per calculator widget
-├── pages/
-│   ├── index.js                        ← homepage
-│   ├── search.js                       ← search page
-│   └── [category]/
-│       ├── index.js                    ← category page (/finance/, /health/ etc.)
-│       └── [slug].js                   ← calculator page (auto loads widget)
+Calculator name : "BMI Calculator"
+Slug            : "bmi-calculator"       (split by spaces → lowercase → hyphens)
+Widget filename : "BmiCalculator.js"     (split slug by "-", capitalize each word, join)
+Component name  : BmiCalculator          (same as filename without .js)
 
-━━━ URL STRUCTURE ━━━
+More examples:
+"Simple Interest Calculator"   → "simple-interest-calculator"   → "SimpleInterestCalculator.js"
+"Compound Interest Calculator" → "compound-interest-calculator" → "CompoundInterestCalculator.js"
+"GST Calculator"               → "gst-calculator"               → "GstCalculator.js"
 
-Category pages:    calculatorsnexus.com/finance/
-                   calculatorsnexus.com/health/
-Calculator pages:  calculatorsnexus.com/finance/emi-calculator/
-                   calculatorsnexus.com/health/bmi-calculator/
-
-NOT like this:     calculatorsnexus.com/calculator/emi-calculator/   ← WRONG
-NOT like this:     calculatorsnexus.com/category/finance/            ← WRONG
-
-━━━ HOW CALCULATOR WIDGETS WORK ━━━
-
-The file pages/[category]/[slug].js automatically loads the correct
-widget component based on the calculator slug using slugToComponentName()
-from lib/utils.js:
-
-slug "emi-calculator"              → component file "EmiCalculator.js"
-slug "bmi-calculator"              → component file "BmiCalculator.js"
-slug "simple-interest-calculator"  → component file "SimpleInterestCalculator.js"
-
-Conversion rule: split by "-", capitalize each word, join together.
-File lives in: frontend/components/calculators/[WidgetName].js
+The filename and the exported component name must always match exactly.
+Never copy an existing widget file to start a new one and leave the old
+export name or logic in place — build each widget fresh for its own
+calculator.
 
 ━━━ UTILS.JS — SHARED FUNCTIONS ━━━
 
 Located at: frontend/lib/utils.js
 ALWAYS import from here — NEVER rewrite these locally in any calculator.
+Do not import any other package (no axios, lodash, moment, etc.) —
+these five functions plus plain React are all a widget should ever need.
 
 export function formatAmount(amount)
 → Formats number with commas, NO currency symbol
@@ -81,58 +52,17 @@ export function formatPercent(value, decimals = 2)
 
 export function isValidInput(...values)
 → Uses isNaN() internally — validates all inputs at once
-→ Returns true only if ALL values are valid numbers > 0
+→ Returns true only if ALL values are valid, finite numbers >= 0 (zero passes)
+→ For any field that must be strictly positive (principal, time period,
+  tenure), add an extra check in the same if-statement: e.g. P <= 0
+→ Fields where zero is a legitimate value (like an interest rate) don't
+  need the extra check — let isValidInput handle them alone
 → NEVER use !value or !P checks — always use this function
 
 export function isFiniteResult(...values)
 → Checks calculated results are not Infinity or NaN
 → Catches extreme input values like 999999999999
 → Use AFTER calculation, BEFORE setResult
-
-export function slugToComponentName(slug)
-→ "emi-calculator" → "EmiCalculator"
-→ Used in pages/[category]/[slug].js to load widget dynamically
-
-━━━ SEED DATA STRUCTURE ━━━
-
-Seed data is split by category inside:
-backend/calculators/management/commands/seeds/
-
-seeds/
-├── __init__.py
-├── finance.py      ← all finance calculators
-├── health.py       ← all health calculators
-├── math.py         ← all math calculators
-├── business.py     ← all business calculators
-└── everyday.py     ← all everyday calculators
-
-Main seed_data.py imports from these files.
-When adding a new calculator, add its data dict to the correct category file.
-
-Each calculator data dict structure:
-{
-    'slug':              'calculator-slug',
-    'name':              'Calculator Name',
-    'icon':              '🧮',
-    'short_description': 'One line description shown on cards',
-    'description':       '2-3 paragraph SEO description',
-    'how_to_use':        'Step 1...\nStep 2...\nStep 3...',
-    'formula':           'Formula = ...\nWhere:\nP = ...',
-    'example':           'Input: ...\nResult: ...',
-    'is_featured':       True or False,
-    'is_new':            True or False,
-    'order':             1,  (display order within category)
-    'meta_title':        'Calculator Name – Free Tool | calculatorsnexus',
-    'meta_description':  '150-160 char SEO description',
-    'meta_keywords':     'keyword1, keyword2, keyword3',
-    'faqs': [
-        ('Question 1?', 'Answer 1', 1),
-        ('Question 2?', 'Answer 2', 2),
-        ('Question 3?', 'Answer 3', 3),
-        ('Question 4?', 'Answer 4', 4),
-        ('Question 5?', 'Answer 5', 5),
-    ]
-}
 
 ━━━ WIDGET DESIGN PATTERN ━━━
 
@@ -174,9 +104,10 @@ export default function [Name]Calculator() {
             return
         }
 
-        // Step 5: setResult — include ALL values shown in UI
+        // Step 5: setResult — include ALL values shown in UI, including
+        // any input values displayed in sentences (see Rule 7)
         setResult({
-            principalPaid: P,   // include input values used in display
+            principal: P,   // include input values used in display
             output1,
             output2,
         })
@@ -225,7 +156,7 @@ Applies to ALL inputs — principal, rate, time, tenure, every field.
 
 RULE 2 — VALIDATION
 Always use isValidInput() from utils. Never use !value.
-✅ if (!isValidInput(P, R, T)) { setResult(null); return }
+✅ if (!isValidInput(P, R, T) || P <= 0 || T <= 0) { setResult(null); return }
 ❌ if (!P || !r || P <= 0) return
 
 RULE 3 — INFINITY PROTECTION
@@ -234,11 +165,13 @@ Always check after calculation, before setResult:
 Place this immediately after all math is done.
 
 RULE 4 — SETRESULT COMPLETENESS
-Every value shown in UI must be in setResult:
-✅ setResult({ principalPaid: P, interest, total })
-   then use: {formatAmount(result.principalPaid)}
+Every value shown in the result section — including input values reused
+in summary sentences, not just calculated outputs — must be read from
+the result object:
+✅ setResult({ principal: P, interest, total })
+   then use: {formatAmount(result.principal)}
 ❌ setResult({ interest, total })
-   then use: {formatAmount(principal)}  ← BREAKS when input is cleared
+   then use: {formatAmount(principal)}  ← raw state, breaks the snapshot
 
 RULE 5 — NO CURRENCY SYMBOLS
 formatAmount never shows $ £ € ₹ — site is global.
@@ -247,13 +180,21 @@ formatAmount never shows $ £ € ₹ — site is global.
 
 RULE 6 — PERCENT DISPLAY
 formatPercent already appends % — never add it again:
-✅ {formatPercent(rate)}    → "10.00%"
-❌ {formatPercent(rate)}%   → "10.00%%"
+✅ {formatPercent(result.rate)}    → "10.00%"
+❌ {formatPercent(result.rate)}%   → "10.00%%"
 
 RULE 7 — READ FROM RESULT OBJECT ONLY
-Never display raw state variables in result section:
-✅ {formatAmount(result.principalPaid)}
+Never display a raw useState variable anywhere inside the
+`{result && (...)}` block — not even something as simple as a time
+period or rate next to a properly-sourced value. `result` is a frozen
+snapshot from the last successful calculation; the raw state variables
+update live as the user types and can briefly disagree with it. Every
+single value shown in the result section, without exception, must come
+from `result.___`:
+✅ {formatAmount(result.principal)}
+✅ {result.timePeriod} years
 ❌ {formatAmount(principal)}
+❌ {timePeriod} years          ← even though it "usually" matches result
 
 RULE 8 — MATH PROTECTION
 Use Math.max(0, value) for values that should never be negative:
@@ -305,6 +246,79 @@ Use col-md-4 for 3 card layouts (better mobile UX)
 Use col-md-6 for 2 card layouts
 Use col-12 for single card layouts
 
+━━━ QUALITY CHECKLIST — RUN THIS BEFORE HANDING BACK ANY WIDGET ━━━
+
+CHECK 1 — No duplicate or orphan files.
+Never copy an existing widget file to create a new one "as a starting
+point" and leave the old export name or content in place. Build the
+new widget's logic fresh for its own formula and inputs.
+
+CHECK 2 — No extra dependencies.
+Don't import anything beyond React and the five functions in
+frontend/lib/utils.js. If a calculation genuinely needs something else,
+say so and ask first instead of adding an import silently.
+
+CHECK 3 — Read every rendered sentence once, out loud, before shipping.
+Alert/summary sentences built from multiple {result.x} insertions are
+the easiest place to ship a duplicated word or a redundant trailing
+phrase. After assembling any sentence, read the final rendered text —
+not just the JSX — before calling it done.
+
+━━━ CONTENT TO GENERATE (alongside the widget) ━━━
+
+Every time you build a widget, also generate this content block as
+plain readable text — NOT code, NOT a Python dict, NOT wrapped in any
+file structure. I enter this by hand into Django Admin myself. Use
+these five labels, in this order:
+
+1. description
+   ~300 words as a baseline. Go shorter for a simple calculator (e.g.
+   a basic percentage or tip calculator) and longer for a genuinely
+   complex one (e.g. a full amortizing mortgage calculator) if it
+   actually needs the extra length to explain properly — don't pad a
+   simple calculator to hit 300 words. Explain what the calculator
+   does, why someone would use it, and who it's useful for. Plain
+   prose, no headers, no bullet points.
+
+2. how_to_use
+   Numbered steps a first-time user follows, start to finish:
+   Step 1: ...
+   Step 2: ...
+   Step 3: ...
+   (as many steps as the calculator genuinely needs — don't pad or
+   compress artificially)
+
+3. formula
+   The exact mathematical formula(s) used, with every variable defined:
+   Formula = ...
+   Where:
+   P = ...
+   R = ...
+   If the calculator uses more than one formula (e.g. EMI first, then
+   a monthly amortization breakdown), include all of them, each with
+   its own variable definitions.
+
+4. example
+   Exactly one fully worked example: state the sample inputs, then show
+   the calculation step-by-step, then state the final result — using
+   the same formula and variable names from #3 above, so a reader can
+   follow along and verify the widget's math against it.
+
+5. faqs
+   Minimum 5, maximum 10, as Question / Answer pairs, numbered in the
+   order they should display. Each question must be genuinely specific
+   to this calculator (not generic filler like "what is a calculator")
+   — cover things like: how the formula handles edge cases, common
+   points of confusion for this specific calculation, what a "good" or
+   "typical" result looks like, and how it differs from a related
+   calculator if one exists on the site.
+   1. Question? → Answer
+   2. Question? → Answer
+   ...
+
+The formula in #3 and the math inside the widget's calculate() function
+must produce identical results — if they'd disagree on the same inputs,
+fix one so they match before returning either.
 
 ━━━ RESULT BOX COLORS ━━━
 
@@ -321,34 +335,6 @@ For amortization, schedule, breakdown tables:
 className="table table-sm table-striped table-bordered"
 thead: className="table-dark"
 Always wrap in: <div className="table-responsive">
-
-━━━ NAMING RULES ━━━
-
-Calculator name : "BMI Calculator"
-Slug            : "bmi-calculator"       (auto generated from name)
-Widget filename : "BmiCalculator.js"     (must match slug conversion)
-Component name  : BmiCalculator          (same as filename without .js)
-
-More examples:
-"Simple Interest Calculator" → "simple-interest-calculator" → "SimpleInterestCalculator.js"
-"Compound Interest Calculator" → "compound-interest-calculator" → "CompoundInterestCalculator.js"
-"GST Calculator" → "gst-calculator" → "GstCalculator.js"
-
-━━━ WHAT TO GENERATE ━━━
-
-When I say "build [Calculator Name] calculator", generate ONLY two things:
-
-1. React widget file:
-   Path: frontend/components/calculators/[WidgetName].js
-   Contains: inputs, calculate(), result display
-   Does NOT contain: navbar, footer, SEO, breadcrumb, how to use,
-   formula section, FAQ section — all handled by pages/[category]/[slug].js
-
-2. Seed data dictionary block (Python):
-   One data dict to add inside the calculators = [...] list
-   in the correct seeds/[category].py file
-   Must include: all fields, meta_title, meta_description,
-   meta_keywords, and 5 FAQs as tuples (question, answer, order)
 
 ━━━ EXAMPLE COMPLETE WIDGET (SimpleInterestCalculator.js) ━━━
 
@@ -368,7 +354,7 @@ export default function SimpleInterestCalculator() {
         const R = parseFloat(rate)
         const T = parseFloat(timePeriod)
 
-        if (!isValidInput(P, R, T) || P <= 0 || R < 0 || T <= 0) {
+        if (!isValidInput(P, R, T) || P <= 0 || T <= 0) {
             setResult(null)
             return
         }
@@ -400,7 +386,9 @@ export default function SimpleInterestCalculator() {
         }
 
         setResult({
-            principalPaid: P,
+            principalPaid:  P,
+            interestRate:   R,
+            timePeriod:     T,
             simpleInterest: Math.max(0, simpleInterest),
             totalAmount:    Math.max(0, totalAmount),
             yearlyData,
@@ -431,19 +419,19 @@ export default function SimpleInterestCalculator() {
             {result && (
                 <div className="mt-4">
                     <div className="row g-3 text-center mb-4">
-                        <div className="col-4">
+                        <div className="col-md-4">
                             <div className="bg-light text-dark border rounded p-3 h-100">
                                 <div className="small text-muted">Principal</div>
                                 <div className="fw-bold fs-6">{formatAmount(result.principalPaid)}</div>
                             </div>
                         </div>
-                        <div className="col-4">
+                        <div className="col-md-4">
                             <div className="bg-success text-white rounded p-3 h-100">
                                 <div className="small">Interest Earned</div>
                                 <div className="fw-bold fs-6">{formatAmount(result.simpleInterest)}</div>
                             </div>
                         </div>
-                        <div className="col-4">
+                        <div className="col-md-4">
                             <div className="bg-dark text-white rounded p-3 h-100">
                                 <div className="small">Total Amount</div>
                                 <div className="fw-bold fs-6">{formatAmount(result.totalAmount)}</div>
@@ -453,8 +441,8 @@ export default function SimpleInterestCalculator() {
                     <div className="alert alert-info text-center py-2">
                         📊 You earn <strong>{formatAmount(result.simpleInterest)}</strong> as
                         interest on <strong>{formatAmount(result.principalPaid)}</strong> over{' '}
-                        <strong>{timePeriod} year{timePeriod > 1 ? 's' : ''}</strong> at{' '}
-                        <strong>{formatPercent(rate)}</strong> per year
+                        <strong>{result.timePeriod} year{result.timePeriod > 1 ? 's' : ''}</strong> at{' '}
+                        <strong>{formatPercent(result.interestRate)}</strong> per year.
                     </div>
                     {result.yearlyData.length > 0 && (
                         <div className="mt-3">
@@ -486,4 +474,3 @@ export default function SimpleInterestCalculator() {
         </div>
     )
 }
-

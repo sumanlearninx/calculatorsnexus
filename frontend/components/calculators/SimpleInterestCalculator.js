@@ -34,7 +34,6 @@ export default function SimpleInterestCalculator() {
         const safeSimpleInterest = Math.max(0, simpleInterest)
         const safeTotalAmount = Math.max(0, totalAmount)
 
-        // Build yearly breakdown data
         const yearlyData = []
         const wholeYears = Math.floor(T)
 
@@ -47,7 +46,6 @@ export default function SimpleInterestCalculator() {
             })
         }
 
-        // Handle fractional years
         if (T % 1 !== 0) {
             yearlyData.push({
                 year: `Final (${T.toFixed(2)} Yrs)`,
@@ -55,10 +53,11 @@ export default function SimpleInterestCalculator() {
                 totalAmount: safeTotalAmount,
             })
         }
-
-        // Set complete result object (RULE 4)
+        
         setResult({
             principalPaid: P,
+            interestRate: R,
+            timePeriod: T,
             simpleInterest: safeSimpleInterest,
             totalAmount: safeTotalAmount,
             yearlyData,
@@ -136,8 +135,8 @@ export default function SimpleInterestCalculator() {
                     <div className="alert alert-info text-center py-2">
                         📊 You earn <strong>{formatAmount(result.simpleInterest)}</strong> as
                         interest on <strong>{formatAmount(result.principalPaid)}</strong> over{' '}
-                        <strong>{timePeriod} year{timePeriod > 1 ? 's' : ''}</strong> at{' '}
-                        <strong>{formatPercent(rate)}</strong> per year.
+                        <strong>{result.timePeriod} year{result.timePeriod > 1 ? 's' : ''}</strong> at{' '}
+                        <strong>{formatPercent(result.interestRate)}</strong> per year.
                     </div>
 
                     {result.yearlyData.length > 0 && (

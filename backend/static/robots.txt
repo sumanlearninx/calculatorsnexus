@@ -1,9 +1,0 @@
-User-agent: *
-Allow: /
-
-# Block admin panel from Google
-Disallow: /admin/
-Disallow: /api/
-
-# Location of sitemap
-Sitemap: https://calculatorsnexus.com/sitemap.xml
